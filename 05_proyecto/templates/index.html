@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat en Vivo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        #caja-chat { height: 300px; border: 1px solid #ddd; overflow-y: scroll; padding: 10px; margin-bottom: 10px; background: #f9f9f9; }
+        .msg { margin-bottom: 8px; border-bottom: 1px solid #eee; }
+    </style>
+</head>
+<body>
+    <h1>Livechat</h1>
+    
+    <div id="caja-chat"></div>
+
+    <input type="text" id="usuario" placeholder="Tu nombre...">
+    <input type="text" id="mensaje" placeholder="Escribe un mensaje...">
+    <button onclick="enviar()">Enviar</button>
+
+    <script>
+        const socket = io();
+
+        // Escuchar mensajes del servidor
+        socket.on('mensaje_servidor', function(data) {
+            const caja = document.getElementById('caja-chat');
+            const div = document.createElement('div');
+            div.className = 'msg';
+            div.innerHTML = `<strong>${data.usuario}:</strong> ${data.mensaje}`;
+            caja.appendChild(div);
+            caja.scrollTop = caja.scrollHeight; // Scroll automático
+        });
+
+        function enviar() {
+            const user = document.getElementById('usuario').value;
+            const msg = document.getElementById('mensaje').value;
+            
+            if(user && msg) {
+                socket.emit('mensaje_cliente', { usuario: user, mensaje: msg });
+                document.getElementById('mensaje').value = '';
+            } else {
+                alert("Escribe tu nombre y un mensaje");
+            }
+        }
+    </script>
+</body>
+</html>
